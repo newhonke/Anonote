@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block content %}
+<h1>テスト</h1>
+<form action="/" method="post">
+    <label>投稿</label>
+    <input type="text" name="note" required>
+    <input type="submit" value="投稿">
+</form>
+{% for note in notes %}
+    <p>{{ note.id }}</p>
+    <h3>{{ note.post }}</h3>
+    <hr>
+{% else %}
+    <p>noteがありません。</p>
+{% endfor %}
+{% endblock %}
