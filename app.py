@@ -19,9 +19,19 @@ def index():
         new_note = Note(post=note_text)
         db.session.add(new_note)
         db.session.commit()
+
+    # 1000件超えたら全noteを自動削除
+    count = Note.query.count()
+    if count >= 1000:
+        db.session.query(Note).delete()
+        db.session.commit()
         return redirect(url_for("index"))
+    
+    # index.htmlに表示
     notes = Note.query.all()
-    return render_template("index.html", notes=notes)
+    return render_template("index.html",notes=notes)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
