@@ -4,10 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>掲示板</title>
+
+<!-- 1) 基本的な favicon -->
+<link rel="icon" href="img/favicon.ico" type="image/x-icon">
+
+<!-- 2) 互換性のためのショートカット（IE 等の古いブラウザ向け） -->
+<link rel="shortcut icon" href="img/favicon.ico" type="image/png">
+
+<!-- 3) Apple タッチアイコン（iOS のホーム画面用） -->
+<link rel="apple-touch-icon" href="img/favicon.ico" sizes="180x180" type="image/png">
+
+<!-- 4) Pinned tab / Windows タイル用 — 必要なら適宜設定 -->
+<meta name="theme-color" content="#e6b422">
+
 </head>
 <body>
     {% block content %}
-    
     {% endblock %}
 </body>
 </html>
