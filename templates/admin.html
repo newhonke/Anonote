@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block content %}
+<a href="/">ホーム</a>
+<a href="/logout">ログアウト</a>
+{% for note in notes %}
+    <p>{{ note.id }}</p>
+    <h3>{{ note.post }}</h3>
+    <form action="{{ url_for('delete', id=note.id) }}" method="post">
+        <input type="submit" value="削除">
+    </form>
+    <hr>
+{% else %}
+    <p>noteがありません。</p>
+{% endfor %}
+{% endblock %}

@@ -57,6 +57,7 @@ def index():
         new_note = Note(post=note_text)
         db.session.add(new_note)
         db.session.commit()
+        return redirect(url_for("index"))
 
     # 1000件超えたら全noteを自動削除
     count = Note.query.count()
@@ -75,11 +76,35 @@ def login():
         user = User.query.filter_by(username=request.form["username"]).first()
         if user and check_password_hash(user.password, request.form["password"]):
             login_user(user)
-            return redirect(url_for("index"))
+            return redirect(url_for("admin"))
         return "ログイン失敗"
     return render_template("login.html")
-        
 
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    if current_user.is_authenticated:
+        notes = Note.query.all()
+        return render_template("admin.html",notes=notes)
+    else:
+        return redirect(url_for("login"))
+        
+@app.route("/delete/<int:id>", methods=["GET", "POST"])
+def delete(id):
+    if current_user.is_authenticated:
+        note = Note.query.get(id)
+        db.session.delete(note)
+        db.session.commit()
+        return redirect(url_for("admin"))
+    else:
+        return redirect(url_for("login"))
+
+@app.route("/logout")
+def logout():
+    if current_user.is_authenticated:
+        logout_user()
+        return redirect(url_for("index"))
+    else:
+        return redirect(url_for("index"))
 
 if __name__ == "__main__":
     app.run(debug=True)
