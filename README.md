@@ -13,8 +13,8 @@ Flask と SQLite を使ったシンプルな掲示板アプリです。
 ~~いつか書きます。~~
 
 ## requirements.txt
-'''
-﻿blinker==1.9.0
+```
+blinker==1.9.0
 click==8.2.1
 colorama==0.4.6
 dominate==2.9.1
@@ -33,4 +33,4 @@ SQLAlchemy==2.0.43
 typing_extensions==4.15.0
 visitor==0.1.3
 Werkzeug==3.1.3
-'''
+```
