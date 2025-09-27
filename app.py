@@ -67,7 +67,7 @@ def index():
         return redirect(url_for("index"))
     
     # index.htmlに表示
-    notes = Note.query.all()
+    notes = Note.query.order_by(Note.id.desc()).all()
     return render_template("index.html",notes=notes)
 
 @app.route("/login", methods=["GET", "POST"])
@@ -83,7 +83,7 @@ def login():
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if current_user.is_authenticated:
-        notes = Note.query.all()
+        notes = Note.query.order_by(Note.id.desc()).all()
         return render_template("admin.html",notes=notes)
     else:
         return redirect(url_for("login"))
