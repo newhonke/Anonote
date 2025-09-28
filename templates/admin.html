@@ -7,6 +7,7 @@
     <form action="{{ url_for('delete', id=note.id) }}" method="post">
         <input type="submit" value="削除">
     </form>
+    <a href="{{ url_for('block', ip=note.ip) }}">このIPをブロック</a>
     <hr>
 {% else %}
     <p>noteがありません。</p>

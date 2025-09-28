@@ -27,6 +27,11 @@ class User(db.Model, UserMixin):
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post = db.Column(db.String(200), nullable=False)
+    ip = db.Column(db.String(45))
+
+class BlockedIP(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ip = db.Column(db.String(45))
 
 with app.app_context():
     db.create_all()
@@ -54,7 +59,15 @@ def load_user(user_id):
 def index():
     if request.method == "POST":
         note_text = request.form["note"]
-        new_note = Note(post=note_text)
+
+        ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+        if ip and "," in ip:
+            ip = ip.split(",")[0].strip()
+
+        if BlockedIP.query.filter_by(ip=ip).first():
+            return "ipblock"
+
+        new_note = Note(post=note_text, ip=ip)
         db.session.add(new_note)
         db.session.commit()
         return redirect(url_for("index"))
@@ -97,6 +110,18 @@ def delete(id):
         return redirect(url_for("admin"))
     else:
         return redirect(url_for("login"))
+
+@app.route("/block/<ip>")
+def block(ip):
+    if current_user.is_authenticated and current_user.is_admin:
+        if not BlockedIP.query.filter_by(ip=ip).first():
+            blocked = BlockedIP(ip=ip)
+            db.session.add(blocked)
+            db.session.commit()
+        return redirect(url_for("admin"))
+    else:
+        return redirect(url_for("login"))
+
 
 @app.route("/logout")
 def logout():
