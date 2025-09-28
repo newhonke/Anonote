@@ -97,9 +97,11 @@ def login():
 def admin():
     if current_user.is_authenticated:
         notes = Note.query.order_by(Note.id.desc()).all()
-        return render_template("admin.html",notes=notes)
+        ips = BlockedIP.query.all()
+        return render_template("admin.html",notes=notes,ips=ips)
     else:
         return redirect(url_for("login"))
+
         
 @app.route("/delete/<int:id>", methods=["GET", "POST"])
 def delete(id):
@@ -121,6 +123,15 @@ def block(ip):
         return redirect(url_for("admin"))
     else:
         return redirect(url_for("login"))
+
+@app.route("/unblock/<ip>")
+def unblock(ip):
+    blocked = BlockedIP.query.filter_by(ip=ip).first()
+    if blocked:
+        db.session.delete(blocked)
+        db.session.commit()
+        return f"{ip}解除しました。"
+    return f"{ip}はブロックされてません。"
 
 
 @app.route("/logout")

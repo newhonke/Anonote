@@ -4,6 +4,7 @@
 {% for note in notes %}
     <p>{{ note.id }}</p>
     <h3>{{ note.post }}</h3>
+    <p>{{ note.ip }}</p>
     <form action="{{ url_for('delete', id=note.id) }}" method="post">
         <input type="submit" value="削除">
     </form>
@@ -11,5 +12,9 @@
     <hr>
 {% else %}
     <p>noteがありません。</p>
+{% endfor %}
+<h2>ブロック中のIP</h2>
+{% for block_ip in ips %}
+    <a href="{{ url_for('unblock', ip=block_ip.ip) }}">{{ block_ip.ip }}</a>
 {% endfor %}
 {% endblock %}
