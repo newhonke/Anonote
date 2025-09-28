@@ -51,7 +51,7 @@ PowerShellの場合（Windows）:
 ```powershell
 notepad app.py
 ```
-> Ctrl + S を押してからィンドウ右上の ×ボタン をクリックして終了
+> Ctrl + S を押してからウィンドウ右上の ×ボタン をクリックして終了
 
 Linux/Macの場合:
 ```bash
