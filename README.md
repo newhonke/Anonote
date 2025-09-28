@@ -30,7 +30,7 @@ pip install -r requirements.txt
 > `requirements.txt`がない場合は下記を参考にインストールしてください
 > 
 > ```
-> pip install flask flask_sqlalchemy flask_login werkzeug nano
+> pip install flask flask_sqlalchemy flask_login werkzeug
 > ```
 
 ### 3. SECRET_KEYの設定（本番環境推奨）
