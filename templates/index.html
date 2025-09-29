@@ -1,22 +1,38 @@
 {% extends "base.html" %}{% block content %}
+
 <a href="/login">管理者ログイン</a>
 <a href="/admin">管理者画面</a>
 <a href="https://github.com/newhonke/flask_bbs">github</a>
 <form action="/" method="post">
     <label>投稿</label>
     <input type="text" name="note" required>
+    <input type="hidden" name="reply_to" id="reply_to_input" value="">
     <input type="submit" value="投稿">
 </form>
 {% for note in notes %}
-    {% if note.user and note.user.is_admin %}
-        <p style="color: red;">{{ note.id }}</p>
-    {% else %}
-        <p>{{ note.id }}</p>
+    {% if note.reply_to %}
+        {% set parent = parent_map.get(note.reply_to) %}
+        {% if parent %}
+            返信元:{{ parent.post }}
+        {% endif %}
     {% endif %}
     <h3>{{ note.post }}</h3>
-    <small>（{{ note.created_at | to_jst }}）</small>
+    <small>({{ note.created_at | to_jst }})</small>
+    <a href="#" class="reply-btn" data-reply-to="{{ note.id }}">返信</a>
     <hr>
 {% else %}
-    <p>noteがありません。</p>
+<p>noteがありません。</p>    
 {% endfor %}
+
+<script>
+let replyBtns = document.querySelectorAll(".reply-btn");
+for (let i = 0;i < replyBtns.length; i++) {
+    replyBtns[i].addEventListener("click", function(e){
+        e.preventDefault();
+        document.getElementById("reply_to_input").value = this.getAttribute("data-reply-to");
+        window.scrollTo({top: 0, behavior: "smooth"});
+    });
+}
+</script>
+
 {% endblock %}
