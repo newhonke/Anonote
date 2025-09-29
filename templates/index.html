@@ -9,7 +9,7 @@
 </form>
 {% for note in notes %}
     {% if note.user and note.user.is_admin %}
-        <p style="color: red;">{{ note.id }}</p>
+        <p style="color: #e6b422;">{{ note.id }}</p>
     {% else %}
         <p>{{ note.id }}</p>
     {% endif %}
