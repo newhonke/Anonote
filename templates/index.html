@@ -9,11 +9,12 @@
 </form>
 {% for note in notes %}
     {% if note.user and note.user.is_admin %}
-        <p style="color: blue;">{{ note.id }}</p>
+        <p style="color: red;">{{ note.id }}</p>
     {% else %}
         <p>{{ note.id }}</p>
     {% endif %}
     <h3>{{ note.post }}</h3>
+    <small>（{{ note.created_at | to_jst }}）</small>
     <hr>
 {% else %}
     <p>noteがありません。</p>

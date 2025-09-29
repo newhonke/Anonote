@@ -4,6 +4,8 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import secrets
+from datetime import datetime 
+import pytz
 
 app = Flask(__name__)
 
@@ -30,6 +32,7 @@ class Note(db.Model):
     ip = db.Column(db.String(45))
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     user = db.relationship("User", backref="notes")
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class BlockedIP(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -51,11 +54,18 @@ with app.app_context():
     else:
         print("管理者アカウントは既に存在します")
 
-
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+@app.template_filter("to_jst")
+def to_jst(value):
+    if value is None:
+        return ""
+    jst = pytz.timezone("Asia/Tokyo")
+    if value.tzinfo is None:  # naive datetimeならUTC扱い
+        value = value.replace(tzinfo=pytz.utc)
+    return value.astimezone(jst).strftime("%Y-%m-%d %H:%M:%S")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
