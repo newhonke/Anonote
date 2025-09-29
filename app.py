@@ -28,6 +28,8 @@ class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post = db.Column(db.String(200), nullable=False)
     ip = db.Column(db.String(45))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user = db.relationship("User", backref="notes")
 
 class BlockedIP(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -67,7 +69,7 @@ def index():
         if BlockedIP.query.filter_by(ip=ip).first():
             return "ipblock"
 
-        new_note = Note(post=note_text, ip=ip)
+        new_note = Note(post=note_text, ip=ip, user=current_user if current_user.is_authenticated else None)
         db.session.add(new_note)
         db.session.commit()
         return redirect(url_for("index"))

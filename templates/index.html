@@ -8,7 +8,11 @@
     <input type="submit" value="投稿">
 </form>
 {% for note in notes %}
-    <p>{{ note.id }}</p>
+    {% if note.user and note.user.is_admin %}
+        <p style="color: blue;">{{ note.id }}</p>
+    {% else %}
+        <p>{{ note.id }}</p>
+    {% endif %}
     <h3>{{ note.post }}</h3>
     <hr>
 {% else %}
