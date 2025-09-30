@@ -7,32 +7,53 @@
     <label>投稿</label>
     <input type="text" name="note" required>
     <input type="hidden" name="reply_to" id="reply_to_input" value="">
+    <div id="reply_info"></div>
+    <button type="button" id="cancel_reply" style="display:none;">返信をキャンセル</button>
     <input type="submit" value="投稿">
 </form>
 {% for note in notes %}
+    <div id="note-{{ note.id }}">
+    {% if note.user and note.user.is_admin %}
+        <p style="color: red;">{{ note.id }}</p>
+    {% else %}
+        <p>{{ note.id }}</p>
+    {% endif %}
     {% if note.reply_to %}
         {% set parent = parent_map.get(note.reply_to) %}
         {% if parent %}
-            返信元:{{ parent.post }}
+            返信元:<a href="#note-{{ parent.id }}">{{ parent.post }}</a>
         {% endif %}
     {% endif %}
     <h3>{{ note.post }}</h3>
     <small>({{ note.created_at | to_jst }})</small>
     <a href="#" class="reply-btn" data-reply-to="{{ note.id }}">返信</a>
     <hr>
+    </div>
 {% else %}
 <p>noteがありません。</p>    
 {% endfor %}
 
 <script>
-let replyBtns = document.querySelectorAll(".reply-btn");
-for (let i = 0;i < replyBtns.length; i++) {
-    replyBtns[i].addEventListener("click", function(e){
+const replyInput = document.getElementById("reply_to_input");
+const replyInfo = document.getElementById("reply_info");
+const cancelBtn = document.getElementById("cancel_reply");
+
+document.querySelectorAll(".reply-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
         e.preventDefault();
-        document.getElementById("reply_to_input").value = this.getAttribute("data-reply-to");
-        window.scrollTo({top: 0, behavior: "smooth"});
+        const id = btn.dataset.replyTo;
+        replyInput.value = id;
+        replyInfo.innerHTML = "返信中 → <a href='#note-" + id + "'>投稿#" + id + " <\a> ";
+        cancelBtn.style.display = "inline";
+        window.scrollTo({top: 0, behavior:"smooth"});
     });
-}
+});
+
+cancelBtn.addEventListener("click", () => {
+    replyInput.value = "";
+    replyInfo.innerHTML = "";
+    cancelBtn.style.display = "none";
+});
 </script>
 
 {% endblock %}
