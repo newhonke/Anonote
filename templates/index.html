@@ -3,7 +3,7 @@
 <a href="/login">管理者ログイン</a>
 <a href="/admin">管理者画面</a>
 <a href="https://github.com/newhonke/flask_bbs">github</a>
-<form action="/" method="post">
+<form action="/" method="post" class="post-form">
     <label>投稿</label>
     <input type="text" name="note" required>
     <input type="hidden" name="reply_to" id="reply_to_input" value="">
@@ -11,48 +11,53 @@
     <button type="button" id="cancel_reply" style="display:none;">返信をキャンセル</button>
     <input type="submit" value="投稿">
 </form>
-{% for note in notes %}
-    <div id="note-{{ note.id }}">
-    {% if note.user and note.user.is_admin %}
-        <p style="color: red;">{{ note.id }}</p>
-    {% else %}
-        <p>{{ note.id }}</p>
-    {% endif %}
 
+<div class="timeline">
+{% for note in notes %}
+    <div id="note-{{ note.id }}" class="note">
+    <div class="time">
+    {% if note.user and note.user.is_admin %}
+        <p style="color: red;"><small>({{ note.created_at | to_jst }})</small></p>
+    {% else %}
+        <small>({{ note.created_at | to_jst }})</small>
+    {% endif %}
+    </div>
+
+    <div class="reply">
     {% if note.reply_to %}
         {% set parent = parent_map.get(note.reply_to) %}
         {% if parent %}
             返信元:<a href="#note-{{ parent.id }}">{{ parent.post }}</a>
         {% endif %}
     {% endif %}
-    
+    </div>
+    <div class="note-content">
     {% if note.renote_from_id %}
+        <div class="renote">
         {% set original = parent_map.get(note.renote_from_id) %}
         {% if original %}
-            <p>リノートされました</p>
-            <h3>{{ original.post }}</h3>
+            <p class="renote-label">リノートされました</p>
+            <blockquote>{{ original.post }}</blockquote>
         {% else %}
             <p>リノート元は削除されています</p>
         {% endif %}
+        </div>
     {% else %}
-        <h3>{{ note.post }}</h3>
+        <p>{{ note.post }}</p>
     {% endif %}
-
-    <small>({{ note.created_at | to_jst }})</small>
-
+    </div>
     
     {% if note.post and not note.renote_from_id %}
-        <a href="#" class="reply-btn" data-reply-to="{{ note.id }}">返信</a>
-        <form action="{{ url_for('renote', id=note.id) }}" method="post" style="display:inline;">
-            <button type="submit">リノート</button>
-        </form>
+        <a href="#" class="reply-btn icon-btn" data-reply-to="{{ note.id }}"><i class="fa-solid fa-reply"></i></a>
+        <a href="{{ url_for('renote', id=note.id) }}" class="icon-btn">
+            <i class="fa-solid fa-retweet"></i>
+        </a>
     {% endif %}
-    <hr>
     </div>
 {% else %}
-<p>noteがありません。</p>    
+<div class="not_note"><p>noteがありません。</p></div>    
 {% endfor %}
-
+</div>
 <script>
 const replyInput = document.getElementById("reply_to_input");
 const replyInfo = document.getElementById("reply_info");

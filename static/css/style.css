@@ -1,0 +1,138 @@
+body {
+    background: #eff1f5;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    padding: 20px;
+}
+/* 投稿フォーム全体 */
+form.post-form {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 16px;
+    margin: 20px auto;
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+}
+/* ラベル */
+form.post-form label {
+    display: block;
+    font-size: 0.9rem;
+    color: #374151;
+    margin-bottom: 6px;
+}
+/* テキスト入力 */
+form.post-form input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px soild #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    transition: border 0.2s box shadow 0.2s;
+    box-sizing: border-box;
+}
+form.post-form input[type="text"]:focus {
+  border-color: #3b82f6; /* 青 */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  outline: none;
+}
+/* 投稿ボタン */
+form.post-form input[type="submit"] {
+  background: #3b82f6; /* 青 */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+form.post-form input[type="submit"]:hover {
+  background: #2563eb; /* 濃い青 */
+}
+/* 返信キャンセルボタン */
+#cancel_reply {
+  background: #f87171; /* 赤 */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background 0.2s;
+}
+#cancel_reply:hover {
+  background: #dc2626;
+}
+/* 返信中メッセージ */
+#reply_info {
+  margin: 8px 0;
+  font-size: 0.9em;
+  color: #059669; /* 緑 */
+}
+.timeline {
+    width: 600px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+.note {
+    padding: 15px 20px;
+    border-bottom: 1px solid #e5e5e5;
+    transition: background 0.2s;
+}
+.note:last-child {
+    border-bottom: none;
+}
+.note:hover {
+    background: #f9fafb;
+}
+.time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 6px;
+}
+.note-content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #111827;
+}
+.renote-label {
+    font-size: 0.9rem;
+    color: #059669;
+    margin-bottom: 4px;
+}
+.icon-btn {
+  text-decoration: none;
+  color: #6b7280;
+  font-size: 18px;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.icon-btn:hover {
+  color: #059669; /* 緑っぽい色（Misskey風） */
+}
+blockquote {
+    margin: 6px 0 0 0;
+    padding: 8px 12px;
+    border-left: 3px solid #9ca3af;
+    color: #374151;
+    background: #f3f4f6;
+    font-size: 0.95em;
+    border-radius: 4px;
+}
+.not_note {
+  padding: 15px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.not_note:last-child {
+  border-bottom: none;
+}
