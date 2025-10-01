@@ -40,9 +40,10 @@
 
     <small>({{ note.created_at | to_jst }})</small>
 
-    <a href="#" class="reply-btn" data-reply-to="{{ note.id }}">返信</a>
+    
     {% if note.post and not note.renote_from_id %}
-        <form action="{{ url_for('renote', id=note.id) }}" method="post" style=display:inline;>
+        <a href="#" class="reply-btn" data-reply-to="{{ note.id }}">返信</a>
+        <form action="{{ url_for('renote', id=note.id) }}" method="post" style="display:inline;">
             <button type="submit">リノート</button>
         </form>
     {% endif %}
