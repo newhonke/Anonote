@@ -18,15 +18,34 @@
     {% else %}
         <p>{{ note.id }}</p>
     {% endif %}
+
     {% if note.reply_to %}
         {% set parent = parent_map.get(note.reply_to) %}
         {% if parent %}
             返信元:<a href="#note-{{ parent.id }}">{{ parent.post }}</a>
         {% endif %}
     {% endif %}
-    <h3>{{ note.post }}</h3>
+    
+    {% if note.renote_from_id %}
+        {% set original = parent_map.get(note.renote_from_id) %}
+        {% if original %}
+            <p>リノートされました</p>
+            <h3>{{ original.post }}</h3>
+        {% else %}
+            <p>リノート元は削除されています</p>
+        {% endif %}
+    {% else %}
+        <h3>{{ note.post }}</h3>
+    {% endif %}
+
     <small>({{ note.created_at | to_jst }})</small>
+
     <a href="#" class="reply-btn" data-reply-to="{{ note.id }}">返信</a>
+    {% if note.post and not note.renote_from_id %}
+        <form action="{{ url_for('renote', id=note.id) }}" method="post" style=display:inline;>
+            <button type="submit">リノート</button>
+        </form>
+    {% endif %}
     <hr>
     </div>
 {% else %}

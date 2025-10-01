@@ -34,6 +34,7 @@ class Note(db.Model):
     user = db.relationship("User", backref="notes")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     reply_to = db.Column(db.Integer, db.ForeignKey("note.id"))
+    renote_from_id = db.Column(db.Integer, db.ForeignKey("note.id"))
 
 class BlockedIP(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -99,6 +100,22 @@ def index():
 
     parent_map = {n.id: n for n in notes}
     return render_template("index.html",notes=notes, parent_map=parent_map)
+
+@app.route("/renote/<int:id>", methods=["GET","POST"])
+def renote(id):
+    original_note = Note.query.get_or_404(id)
+
+    if (not original_note.post) or original_note.renote_from_id:
+        return "この投稿はリノートできません"
+
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+    if ip and "," in ip:
+        ip = ip.split(",")[0].strip()
+
+    new_note = Note(post="",ip=ip,user=current_user if current_user.is_authenticated else None,renote_from_id=original_note.id)
+    db.session.add(new_note)
+    db.session.commit()
+    return redirect(url_for("index"))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
