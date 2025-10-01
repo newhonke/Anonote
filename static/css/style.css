@@ -75,7 +75,8 @@ form.post-form input[type="submit"]:hover {
   color: #059669; /* 緑 */
 }
 .timeline {
-    width: 600px;
+  width: 100%;
+    max-width: 600px;
     background: #ffffff;
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -135,4 +136,20 @@ blockquote {
 
 .not_note:last-child {
   border-bottom: none;
+}
+
+@media (max-width: 640px) {
+  .timeline, form.post-form {
+    max-width: 100%;   /* ← 画面いっぱいに広げる */
+    border-radius: 0;  /* ← 角丸を消してシンプルに */
+    box-shadow: none;  /* ← 影もなくして軽く */
+  }
+
+  .note {
+    padding: 12px;     /* ← コンパクトに */
+  }
+
+  .note-content {
+    font-size: 0.95rem;
+  }
 }

@@ -1,4 +1,4 @@
-# flask_bbs
+# Anonote
 
 シンプルなFlask製BBS（掲示板）アプリケーション
 
