@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -39,6 +39,12 @@ class Note(db.Model):
 class BlockedIP(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ip = db.Column(db.String(45))
+
+class Reaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey("note.id"), nullable=False)
+    emoji = db.Column(db.String(50), nullable=False)
+    count = db.Column(db.Integer, default=1)
 
 with app.app_context():
     db.create_all()
@@ -99,7 +105,11 @@ def index():
     notes = Note.query.order_by(Note.id.desc()).all()
 
     parent_map = {n.id: n for n in notes}
-    return render_template("index.html",notes=notes, parent_map=parent_map)
+
+    reactions = {}
+    for note in notes:
+        reactions[note.id] = Reaction.query.filter_by(post_id=note.id).all()
+    return render_template("index.html",notes=notes, parent_map=parent_map, reactions=reactions)
 
 @app.route("/renote/<int:id>", methods=["GET","POST"])
 def renote(id):
@@ -135,7 +145,6 @@ def admin():
         return render_template("admin.html",notes=notes,ips=ips)
     else:
         return redirect(url_for("login"))
-
         
 @app.route("/delete/<int:id>", methods=["GET", "POST"])
 def delete(id):
@@ -166,6 +175,36 @@ def unblock(ip):
         db.session.commit()
         return f"{ip}解除しました。"
     return f"{ip}はブロックされてません。"
+
+@app.route("/react", methods=["GET", "POST"])
+def react():
+    post_id = request.form["post_id"]
+    emoji = request.form["emoji"]
+
+    cookie_key = f"reaction_{post_id}"
+    prev_emoji = request.cookies.get(cookie_key)
+
+    if prev_emoji == emoji:
+        return jsonify({"success":False,"message":"Already reacted with this emoji."})
+    
+    if prev_emoji:
+        prev_reaction = Reaction.query.filter_by(post_id=post_id, emoji=prev_emoji).first()
+        if prev_reaction:
+            prev_reaction.count -= 1
+            if prev_reaction.count <= 0:
+                db.session.delete(prev_reaction)
+
+    reaction = Reaction.query.filter_by(post_id=post_id,emoji=emoji).first()
+    if reaction:
+        reaction.count += 1
+    else:
+        reaction = Reaction(post_id=post_id, emoji=emoji,count=1)
+        db.session.add(reaction)
+    db.session.commit()
+
+    resp = make_response(jsonify({"success": True, "emoji":emoji, "count":reaction.count}))
+    resp.set_cookie(cookie_key, emoji, max_age=60*60*24*365)
+    return resp
 
 
 @app.route("/logout")

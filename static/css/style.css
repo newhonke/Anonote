@@ -153,3 +153,25 @@ blockquote {
     font-size: 0.95rem;
   }
 }
+.emoji-picker {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.hidden {
+  display: none;
+}
+
+.emoji {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.reactions span {
+  margin-right: 5px;
+}
+.icon-btn i {
+  font-size: 16px;
+}
+

@@ -14,7 +14,7 @@
 
 <div class="timeline">
 {% for note in notes %}
-    <div id="note-{{ note.id }}" class="note">
+    <div id="note-{{ note.id }}" class="note" data-post-id="{{ note.id }}">
     <div class="time">
     {% if note.user and note.user.is_admin %}
         <p style="color: red;"><small>({{ note.created_at | to_jst }})</small></p>
@@ -53,32 +53,23 @@
             <i class="fa-solid fa-retweet"></i>
         </a>
     {% endif %}
+    <span class="note-footer">
+        <span class="reactions">
+            {% for reaction in reactions[note.id] %}
+                <span data-emoji="{{ reaction.emoji }}">{{ reaction.emoji }} × {{ reaction.count }}</span>
+            {% endfor %}
+        </span>
+        <a href="#" class="add-reaction icon-btn"><i class="fa-solid fa-plus"></i></a>
+        <span class="emoji-picker hidden">
+            <span class="emoji">👍</span>
+            <span class="emoji">😂</span>
+            <span class="emoji">❤️</span>
+            <span class="emoji">🎉</span>
+        </span>
+    </span>
     </div>
 {% else %}
 <div class="not_note"><p>noteがありません。</p></div>    
 {% endfor %}
 </div>
-<script>
-const replyInput = document.getElementById("reply_to_input");
-const replyInfo = document.getElementById("reply_info");
-const cancelBtn = document.getElementById("cancel_reply");
-
-document.querySelectorAll(".reply-btn").forEach(btn => {
-    btn.addEventListener("click", e => {
-        e.preventDefault();
-        const id = btn.dataset.replyTo;
-        replyInput.value = id;
-        replyInfo.innerHTML = "返信中 → <a href='#note-" + id + "'>投稿#" + id + " <\a> ";
-        cancelBtn.style.display = "inline";
-        window.scrollTo({top: 0, behavior:"smooth"});
-    });
-});
-
-cancelBtn.addEventListener("click", () => {
-    replyInput.value = "";
-    replyInfo.innerHTML = "";
-    cancelBtn.style.display = "none";
-});
-</script>
-
 {% endblock %}
