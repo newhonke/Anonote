@@ -17,4 +17,33 @@
 {% for block_ip in ips %}
     <a href="{{ url_for('unblock', ip=block_ip.ip) }}">{{ block_ip.ip }}</a>
 {% endfor %}
+
+<h3>カスタム絵文字管理</h3>
+
+<form method="POST" enctype="multipart/form-data" action="/admin/emojis">
+    <label>絵文字名</label>
+    <input type="text" name="name" required>
+    <label>画像ファイル</label>
+    <input type="file" name="image" accept="image/*" required>
+    <button type="submit">追加</button>
+</form>
+
+<table>
+    <tr>
+        <th>名前</th>
+        <th>画像</th>
+        <tr>操作</tr>
+    </tr>
+    {% for emoji in emojis %}
+    <tr>
+        <td>{{ emoji.name }}</td>
+        <td><img src="{{ url_for('static', filename=emoji.image_url) }}" width="32"></td>
+        <td>
+            <form method="POST" action="/admin/emojis/delete/{{ emoji.id }}">
+                <button type="submit">削除</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 {% endblock %}

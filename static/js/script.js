@@ -32,27 +32,18 @@ document.querySelectorAll(".note").forEach(post => {
 
     picker.querySelectorAll(".emoji").forEach(emojiEl => {
         emojiEl.addEventListener("click", () => {
-            const emoji = emojiEl.textContent;
+            const emojiId = emojiEl.dataset.id;
             const postId = post.dataset.postId;
             fetch("/react", {
                 method: "POST",
                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                body: `post_id=${postId}&emoji=${encodeURIComponent(emoji)}`
+                body: `post_id=${postId}&emoji_id=${emojiId}`
             })
             
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    let existing = reactionsDiv.querySelector(`[data-emoji="${emoji}"]`);
-                    if (!existing) {
-                        let span = document.createElement("span");
-                        span.dataset.emoji = emoji;
-                        span.textContent = `${emoji} × ${data.count}`;
-                        reactionsDiv.appendChild(span);
-                    } else {
-                        existing.textContent = `${emoji} × ${data.count}`;
-                    }
-                    location.reload(); 
+                    location.reload();
                 }
             });
             picker.classList.add("hidden");

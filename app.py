@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, m
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import os
 import secrets
 from datetime import datetime 
@@ -43,8 +44,16 @@ class BlockedIP(db.Model):
 class Reaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey("note.id"), nullable=False)
-    emoji = db.Column(db.String(50), nullable=False)
+    emoji_id = db.Column(db.Integer, db.ForeignKey("emoji.id"), nullable=False)
+    emoji = db.relationship("Emoji", foreign_keys=[emoji_id])
     count = db.Column(db.Integer, default=1)
+    note = db.relationship("Note", backref="reactions", lazy=True)
+
+class Emoji(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    image_url = db.Column(db.String(200), nullable=False)
+
 
 with app.app_context():
     db.create_all()
@@ -103,13 +112,14 @@ def index():
     
     # index.htmlに表示
     notes = Note.query.order_by(Note.id.desc()).all()
+    emojis = Emoji.query.all()
 
     parent_map = {n.id: n for n in notes}
 
     reactions = {}
     for note in notes:
         reactions[note.id] = Reaction.query.filter_by(post_id=note.id).all()
-    return render_template("index.html",notes=notes, parent_map=parent_map, reactions=reactions)
+    return render_template("index.html",notes=notes, parent_map=parent_map, reactions=reactions ,emojis=emojis)
 
 @app.route("/renote/<int:id>", methods=["GET","POST"])
 def renote(id):
@@ -140,11 +150,33 @@ def login():
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if current_user.is_authenticated:
-        notes = Note.query.order_by(Note.id.desc()).all()
+        notes = Note.query.order_by(Note.id.desc()).limit(100).all()
         ips = BlockedIP.query.all()
-        return render_template("admin.html",notes=notes,ips=ips)
+        emojis = Emoji.query.all()
+        return render_template("admin.html",notes=notes,ips=ips, emojis=emojis)
     else:
         return redirect(url_for("login"))
+    
+@app.route("/admin/emojis", methods=["POST"])
+@login_required
+def add_emoji():
+    name = request.form["name"]
+    image = request.files["image"]
+    filename = secure_filename(image.filename)
+    path = os.path.join("static/emojis", filename)
+    image.save(path)
+    db.session.add(Emoji(name=name, image_url=f"emojis/{filename}"))
+    db.session.commit()
+    return redirect("/admin")
+
+@app.route("/admin/emojis/delete/<int:id>", methods=["POST"])
+@login_required
+def delete_emoji(id):
+    emoji = Emoji.query.get_or_404(id)
+    db.session.delete(emoji)
+    db.session.commit()
+    return redirect("/admin")
+
         
 @app.route("/delete/<int:id>", methods=["GET", "POST"])
 def delete(id):
@@ -178,32 +210,33 @@ def unblock(ip):
 
 @app.route("/react", methods=["GET", "POST"])
 def react():
-    post_id = request.form["post_id"]
-    emoji = request.form["emoji"]
-
+    post_id = int(request.form["post_id"])
+    emoji_id = int(request.form["emoji_id"])
     cookie_key = f"reaction_{post_id}"
-    prev_emoji = request.cookies.get(cookie_key)
 
-    if prev_emoji == emoji:
-        return jsonify({"success":False,"message":"Already reacted with this emoji."})
-    
-    if prev_emoji:
-        prev_reaction = Reaction.query.filter_by(post_id=post_id, emoji=prev_emoji).first()
+    # すでにリアクションしていた場合（絵文字が違っても）
+    prev_emoji_id = request.cookies.get(cookie_key)
+    if prev_emoji_id:
+        # 前のリアクションを減らす
+        prev_reaction = Reaction.query.filter_by(post_id=post_id, emoji_id=prev_emoji_id).first()
         if prev_reaction:
             prev_reaction.count -= 1
             if prev_reaction.count <= 0:
                 db.session.delete(prev_reaction)
 
-    reaction = Reaction.query.filter_by(post_id=post_id,emoji=emoji).first()
+    if request.cookies.get(cookie_key) == str(emoji_id):
+        return jsonify(success=False)
+    
+    reaction = Reaction.query.filter_by(post_id=post_id,emoji_id=emoji_id).first()
     if reaction:
         reaction.count += 1
     else:
-        reaction = Reaction(post_id=post_id, emoji=emoji,count=1)
+        reaction = Reaction(post_id=post_id, emoji_id=emoji_id,count=1)
         db.session.add(reaction)
     db.session.commit()
 
-    resp = make_response(jsonify({"success": True, "emoji":emoji, "count":reaction.count}))
-    resp.set_cookie(cookie_key, emoji, max_age=60*60*24*365)
+    resp = jsonify(success=True)
+    resp.set_cookie(cookie_key, str(emoji_id))
     return resp
 
 

@@ -56,15 +56,21 @@
     <span class="note-footer">
         <span class="reactions">
             {% for reaction in reactions[note.id] %}
-                <span data-emoji="{{ reaction.emoji }}">{{ reaction.emoji }} × {{ reaction.count }}</span>
+                {% if reaction.emoji %}
+                    <span data-emoji="{{ reaction.emoji.id }}">
+                        <img src="{{ url_for('static', filename=reaction.emoji.image_url) }}"
+                        alt="{{ reaction.emoji.name }}" width="34"> {{ reaction.count }}
+                    </span>
+                {% endif %}
             {% endfor %}
         </span>
         <a href="#" class="add-reaction icon-btn"><i class="fa-solid fa-plus"></i></a>
         <span class="emoji-picker hidden">
-            <span class="emoji">👍</span>
-            <span class="emoji">😂</span>
-            <span class="emoji">❤️</span>
-            <span class="emoji">🎉</span>
+            {% for emoji in emojis %}
+                <img src="{{ url_for('static', filename=emoji.image_url) }}"
+                     class="emoji" data-id="{{ emoji.id }}"
+                     alt="{{ emoji.name }}" width="24">
+            {% endfor %}        
         </span>
     </span>
     </div>
