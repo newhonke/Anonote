@@ -3,8 +3,15 @@
 <a href="/login">管理者ログイン</a>
 <a href="/admin">管理者画面</a>
 <a href="https://github.com/newhonke/Anonote">github</a>
+{% if current_user.is_authenticated %}
+<form action="{{ url_for('logout') }}" method="post" class="inline-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="link-button">ログアウト</button>
+</form>
+{% endif %}
 <form action="/" method="post" class="post-form">
     <label>投稿</label>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="text" name="note" required>
     <input type="hidden" name="reply_to" id="reply_to_input" value="">
     <div id="reply_info"></div>
@@ -49,9 +56,12 @@
     
     {% if note.post and not note.renote_from_id %}
         <a href="#" class="reply-btn icon-btn" data-reply-to="{{ note.id }}"><i class="fa-solid fa-reply"></i></a>
-        <a href="{{ url_for('renote', id=note.id) }}" class="icon-btn">
-            <i class="fa-solid fa-retweet"></i>
-        </a>
+        <form action="{{ url_for('renote', id=note.id) }}" method="post" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="icon-btn" aria-label="リノート">
+                <i class="fa-solid fa-retweet"></i>
+            </button>
+        </form>
     {% endif %}
     <span class="note-footer">
         <span class="reactions">
