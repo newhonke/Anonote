@@ -63,39 +63,29 @@ Linux/Macの場合:
 export SECRET_KEY="安全なランダム文字列"
 ```
 
+> ローカル開発ではプロジェクト直下の `.env` ファイルに `SECRET_KEY` や `ADMIN_USERNAME` を記述しても読み込まれます（`python-dotenv` を使用）。本番では `.env` ではなく実際の環境変数を設定してください。
+
 ### 4. 管理者アカウントの設定
+
+アプリケーションは **環境変数 `ADMIN_USERNAME` と `ADMIN_PASSWORD`** が設定されている場合に限り、初回起動時に管理者アカウントを自動作成します（ユーザー名は10文字以内）。
 
 PowerShellの場合（Windows）:
 ```powershell
-notepad app.py
+setx ADMIN_USERNAME "your-admin"
+setx ADMIN_PASSWORD "very-strong-password"
 ```
-> Ctrl + S を押してからウィンドウ右上の ×ボタン をクリックして終了
 
 Linux/Macの場合:
 ```bash
-nano app.py
-```
-> Ctrl + X を押してから Y を押して Enter キーを押して終了
-
-```python
-if not User.query.filter_by(username="admin").first():
-        # 管理者を作成
-        admin = User(
-            username = "admin", #管理者アカウントのユーザーネームに変更
-            password = generate_password_hash("password"), #管理者アカウントのパスワードに変更
-            is_admin = True
-        )
-        db.session.add(admin)
-        db.session.commit()
-        print("管理者アカウントを作成しました")
-    else:
-        print("管理者アカウントは既に存在します")
+export ADMIN_USERNAME="your-admin"
+export ADMIN_PASSWORD="very-strong-password"
 ```
 
-- デフォルトのままにするとアプリケーション起動時に管理者アカウント（ユーザー名: `admin`, パスワード: `password`）が作成されます。  
-**必ず自分しかしらないユーザーネーム、パスワードに変更してください！**
+> `ADMIN_PASSWORD` は平文のままプロセス環境に残るため、使用後は必ずシェル履歴から削除してください。
 
-### 4. アプリケーションの起動
+すでに管理者アカウントが存在する場合は再作成されません。別のアカウントを追加したい場合はアプリケーションにログインし、機能追加などで対応してください。
+
+### 5. アプリケーションの起動
 
 ```bash
 python app.py
@@ -113,5 +103,8 @@ python app.py
 
 ## 注意事項
 
-- 本番用デプロイを想定する場合は必ず`SECRET_KEY`と管理者アカウント情報を変更してください。
+- 本番用デプロイを想定する場合は必ず `SECRET_KEY`・`ADMIN_USERNAME`・`ADMIN_PASSWORD` を安全に管理してください。
+- ログアウトや管理操作はすべて POST + CSRF トークンで保護されています。テンプレートを変更する際はトークン入力を削除しないよう注意してください。
+- 逆プロキシ配下で `X-Forwarded-For` を信頼したい場合は `TRUST_X_FORWARDED_FOR=true` を環境変数に設定してください（デフォルトは信頼しません）。
+- 開発時のみ `FLASK_DEBUG=1` を設定すると Flask デバッガが有効になります。**本番でのデバッグモードは厳禁です。**
 - IPブロックや削除機能は管理者のみ利用できます。

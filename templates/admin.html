@@ -1,26 +1,41 @@
 {% extends "base.html" %}{% block content %}
 <a href="/">ホーム</a>
-<a href="/logout">ログアウト</a>
+<form action="{{ url_for('logout') }}" method="post" class="inline-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="link-button">ログアウト</button>
+</form>
 {% for note in notes %}
     <p>{{ note.id }}</p>
     <h3>{{ note.post }}</h3>
     <p>{{ note.ip }}</p>
     <form action="{{ url_for('delete', id=note.id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="submit" value="削除">
     </form>
-    <a href="{{ url_for('block', ip=note.ip) }}">このIPをブロック</a>
+    {% if note.ip %}
+    <form action="{{ url_for('block') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="ip" value="{{ note.ip }}">
+        <button type="submit">このIPをブロック</button>
+    </form>
+    {% endif %}
     <hr>
 {% else %}
     <p>noteがありません。</p>
 {% endfor %}
 <h2>ブロック中のIP</h2>
 {% for block_ip in ips %}
-    <a href="{{ url_for('unblock', ip=block_ip.ip) }}">{{ block_ip.ip }}</a>
+    <form method="post" action="{{ url_for('unblock') }}" class="inline-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="ip" value="{{ block_ip.ip }}">
+        <button type="submit">{{ block_ip.ip }} を解除</button>
+    </form>
 {% endfor %}
 
 <h3>カスタム絵文字管理</h3>
 
 <form method="POST" enctype="multipart/form-data" action="/admin/emojis">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label>絵文字名</label>
     <input type="text" name="name" required>
     <label>画像ファイル</label>
@@ -40,6 +55,7 @@
         <td><img src="{{ url_for('static', filename=emoji.image_url) }}" width="32"></td>
         <td>
             <form method="POST" action="/admin/emojis/delete/{{ emoji.id }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit">削除</button>
             </form>
         </td>

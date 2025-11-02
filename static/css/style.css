@@ -175,3 +175,30 @@ blockquote {
   font-size: 16px;
 }
 
+.inline-form {
+  display: inline;
+}
+
+.inline-form .icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.link-button:hover {
+  color: #1d4ed8;
+}
+
+.error {
+  color: #dc2626;
+  margin-top: 8px;
+}
