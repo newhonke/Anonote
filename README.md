@@ -85,7 +85,11 @@ export ADMIN_PASSWORD="very-strong-password"
 
 すでに管理者アカウントが存在する場合は再作成されません。別のアカウントを追加したい場合はアプリケーションにログインし、機能追加などで対応してください。
 
-### 5. アプリケーションの起動
+### 5. プロキシ配下での IP 取得設定
+- `.env` に TRUST_X_FORWARDED_FOR=true を記述（本番は環境変数）
+- Cloudflare Tunnel では cloudflared.yml に `originRequest: trueClientIp: true`
+
+### 6. アプリケーションの起動
 
 ```bash
 python app.py
