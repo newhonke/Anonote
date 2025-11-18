@@ -54,9 +54,12 @@ def inject_csrf_token():
 def get_request_ip() -> str:
     ip = request.remote_addr or ""
     if TRUST_X_FORWARDED_FOR:
+        cf_ip = request.headers.get("CF-Connecting-IP")
+        if cf_ip:
+            return cf_ip.strip()
         forwarded_for = request.headers.get("X-Forwarded-For")
         if forwarded_for:
-            ip = forwarded_for.split(",")[0].strip()
+            return forwarded_for.split(",")[0].strip()
     return ip
 
 class User(db.Model, UserMixin):
@@ -331,4 +334,4 @@ def logout():
 
 if __name__ == "__main__":
     debug_mode = os.environ.get("FLASK_DEBUG") == "1"
-    app.run(debug=debug_mode)
+    app.run(debug=True)
