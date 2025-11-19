@@ -11,6 +11,7 @@ import pytz
 from functools import wraps
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf
+from flask import flash
 
 load_dotenv()
 
@@ -18,8 +19,7 @@ app = Flask(__name__)
 
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 # CSRF を有効化
-csrf = CSRFProtect()
-csrf.init_app(app)
+csrf = CSRFProtect(app)
 # 開発用警告
 if os.environ.get("SECRET_KEY") is None:
     print("⚠ WARNING: 必ず本番環境では  setx SECRET_KEY\"本番用の安全なランダム文字列\"  をパワーシェルで行ってください。")
@@ -44,11 +44,6 @@ def admin_required(view_func):
         return view_func(*args, **kwargs)
 
     return login_required(wrapper)
-
-
-@app.context_processor
-def inject_csrf_token():
-    return {"csrf_token": lambda: generate_csrf()}
 
 
 def get_request_ip() -> str:
@@ -186,6 +181,34 @@ def index():
         reactions[note.id] = Reaction.query.filter_by(post_id=note.id).all()
     return render_template("index.html",notes=notes, parent_map=parent_map, reactions=reactions ,emojis=emojis)
 
+@app.route("/register", methods=["GET","POST"])
+def register():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if User.query.filter_by(username=username).first():
+            flash("このユーザー名は既に使われています。")
+            return redirect("/register")
+    
+        hashed_pw = generate_password_hash(password, method="pbkdf2:sha256")
+
+
+        new_user = User(username=username,password=hashed_pw,is_admin=False)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("アカウントを作成しました！ログインしてください。")
+        return redirect("/login")
+    return render_template("register.html")
+
+@app.route("/check")
+def check():
+    if current_user.is_authenticated:
+        return f"ログイン中：{current_user.username}"
+    else:
+        return "ログインしていません"
+
 @app.route("/renote/<int:id>", methods=["POST"])
 def renote(id):
     original_note = Note.query.get_or_404(id)
@@ -202,16 +225,18 @@ def renote(id):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    error = None
-    if request.method == "POST":
-        username = request.form.get("username", "")
-        password = request.form.get("password", "")
-        user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-            return redirect(url_for("admin"))
-        error = "ログインに失敗しました。"
-    return render_template("login.html", error=error)
+    if request.method =="POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        user =User.query.filter_by(username=username).first()
+
+        if not user or not check_password_hash(user.password,password):
+            flash("ユーザー名またはパスワードが違います")
+            return redirect("/login")
+        login_user(user)
+        return redirect("/")
+    return render_template("login.html")
 
 @app.route("/admin", methods=["GET"])
 @admin_required

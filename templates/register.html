@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block content %}
+<form action="/register" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    <label>ユーザー名:</label><br>
+    <input type="text" name="username" required><br><br>
+
+    <label>パスワード:</label><br>
+    <input type="password" name="password" required><br><br>
+
+    <button type="submit">登録する</button>
+</form>
+{% endblock %}

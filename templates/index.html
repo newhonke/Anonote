@@ -1,7 +1,8 @@
 {% extends "base.html" %}{% block content %}
-<h2>Anonote -匿名すぎる掲示板-</h2>
-<a href="/login">管理者ログイン</a>
+<h2>Anonote</h2>
+<a href="/login">ログイン</a>
 <a href="/admin">管理者画面</a>
+<a href="/register">ユーザー登録</a>
 <a href="https://github.com/newhonke/Anonote">github</a>
 {% if current_user.is_authenticated %}
 <form action="{{ url_for('logout') }}" method="post" class="inline-form">
