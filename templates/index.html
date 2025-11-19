@@ -24,10 +24,12 @@
 {% for note in notes %}
     <div id="note-{{ note.id }}" class="note" data-post-id="{{ note.id }}">
     <div class="time">
-    {% if note.user and note.user.is_admin %}
-        <p style="color: red;"><small>({{ note.created_at | to_jst }})</small></p>
+    {% if note.user %}
+    <small>({{ note.created_at | to_jst }})</small>
+        <span class="post-user">{{ note.user.username }}</span>
     {% else %}
         <small>({{ note.created_at | to_jst }})</small>
+        <span class="post-user">匿名</span>
     {% endif %}
     </div>
 
